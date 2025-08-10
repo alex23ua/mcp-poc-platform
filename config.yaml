@@ -1,4 +1,5 @@
 # config.yaml
 mcp_application:
   mcp_server_url: "http://localhost:8000/mcp"
+  gpt_model: "gpt-5"
   system_instructions: "You are a helpful assistant that can call tools to help users. Analyze the user's request and call the appropriate tools in the right order for each step."

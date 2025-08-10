@@ -220,7 +220,7 @@ class MCPHost:
             self.session_id = None
             self.is_initialized = False
 
-    async def process_prompt(self, prompt: str, system_instructions: str) -> str:
+    async def process_prompt(self, prompt: str, system_instructions: str, gpt_model: str) -> str:
         """Process a customer prompt and invoke appropriate MCP tools"""
         if not self.is_initialized:
             return "MCP Host not initialized. Call initialize() first."
@@ -234,7 +234,7 @@ class MCPHost:
         try:
             # Use OpenAI to understand the prompt and decide which tools to call
             response = self.client.chat.completions.create(
-                model="gpt-5",
+                model=gpt_model,
                 messages=[
                     {
                         "role": "system", 
@@ -268,7 +268,7 @@ class MCPHost:
                     messages=[
                         {
                             "role": "system", 
-                            "content": "You are a helpful assistant. Provide a vce ative, friendly response based on the tool results Explaning the steps of the flow."
+                            "content": system_instructions
                         },
                         {"role": "user", "content": prompt},
                         {"role": "assistant", "content": f"I've executed the requested tools. Results: {'; '.join(results)}"}
@@ -382,8 +382,11 @@ async def process_customer_prompt(request: CustomerPrompt):
         system_instructions = config_data["mcp_application"]["system_instructions"]
         print(f"Using system instructions: {system_instructions}")
         # Process the prompt (equivalent to line 285 in your original code)
-        mcp_tools, result = await mcp_host.process_prompt(request.prompt, system_instructions)
-        
+
+        gpt_model = config_data["mcp_application"].get("gpt_model", "gpt-5")
+        print(f"Using GPT model: {gpt_model}")
+        mcp_tools, result = await mcp_host.process_prompt(request.prompt, system_instructions, gpt_model=gpt_model)
+
         print(f"✅ Prompt processed successfully. Tools used:")
         
         return PromptResponse(
